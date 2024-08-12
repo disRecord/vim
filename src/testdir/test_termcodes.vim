@@ -2326,11 +2326,16 @@ func Test_mapping_works_with_shift_plain()
 endfunc
 
 func RunTest_mapping_mods(map, key, func, code)
+  let keys = a:func(a:key, a:code)
   call setline(1, '')
   exe 'inoremap ' .. a:map .. ' xyz'
-  call feedkeys('a' .. a:func(a:key, a:code) .. "\<Esc>", 'Lx!')
-  call assert_equal("xyz", getline(1))
+  call feedkeys('a' .. keys  .. "\<Esc>", 'Lx!')
+  call assert_equal("xyz", getline(1), 'Single mapping')
+  exe 'inoremap ' .. a:map .. a:map .. ' abc'
+  call feedkeys('S' .. keys .. keys .. "\<Esc>", 'Lx!')
+  call assert_equal("abc", getline(1), 'Overlapping mapping')
   exe 'iunmap ' .. a:map
+  exe 'iunmap ' .. a:map .. a:map
 endfunc
 
 func RunTest_mapping_works_with_mods(func, mods, code)
